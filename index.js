@@ -190,6 +190,58 @@ router.post('/EditProfile',  async (req, res) => {
 
 });
 
+router.post('/dummyProfile',  async (req, res) => {
+  // Verify that the request includes the required information
+  //try{
+    const name=req.body.name;
+    const email=req.body.email;
+    const language=req.body.language;
+    const age=req.body.age;
+    const location=req.body.location;
+    const locationLat=req.body.locationLat;
+    const locationLng=req.body.locationLng;
+    const interestId=req.body.interestId;
+    const gender=req.body.gender;
+    const Country=req.body.Country;
+  const points=req.body.points;
+    const educationLevel=req.body.educationLevel;
+   // const { name, email, language, age, location, locationLat, locationLng, interestId, gender, educationLevel } = req.body;
+     
+    console.log('sdfsd '+email);
+  //   if (!email) {
+  //     return res.status(400).json({ message: 'All fields are required.' });
+  //   }
+  //   // Check if the user exists
+  //   const user = await ProfileCollection.findOne({ email });
+  //   if (user) {
+  //     // User exists, log them in
+  //     user.name = name;
+  //     user.language = language;
+  //     user.age = age;
+  //     user.location = location;
+  //     user.locationLat = locationLat;
+  //     user.locationLng = locationLng;
+  //     user.interestId = interestId;
+  //     user.gender = gender;
+  //     user.educationLevel = educationLevel;
+  //     user.Country=Country;
+  //     user.points=points;
+  //     const updatedUser = await user.save();
+  
+  //     return res.send(user);
+      
+  //   } else {
+  //     // User does not exist, sign them up
+      
+  //     return res.send("User does'nt exsits");
+  //   }
+  // }
+  // catch(error){
+  //   throw error;
+  // }
+
+});
+
 //Add User Link
 router.post('/SocialLink', async (req, res) => {
   const email=req.body.email;
