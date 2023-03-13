@@ -10,6 +10,7 @@ const Collection=require("./Model/User");
 const ProfileCollection=require("./Model/Profile");
 const SocialLinkConllection=require("./Model/SocialMedia");
 const InterestCollection = require("./Model/Interest");
+const OrderCollection=require("./Model/Order");
 // Connect to the MongoDB database
 
 mongoose.set('strictQuery', false);
@@ -56,7 +57,7 @@ router.post('/Googlelogin',  async (req, res) => {
   const ProfileName=req.body.ProfileName;
   const ProfileImageUrl =req.body.ProfileImageUrl;
    
-  //console('sdfsd '+email);
+ // console('sdfsd '+email);
   if (!UUID || !Email || !ProfileImageUrl || !ProfileName) {
     return res.status(400).send({ error: "Information Incomplete" });
   }
@@ -67,17 +68,18 @@ router.post('/Googlelogin',  async (req, res) => {
     email: Email 
   };
   
-  const token = jwt.sign(User, 'your_secret_key_here', { expiresIn: '1h' });
+ // const token = jwt.sign(User, 'your_secret_key_here', { expiresIn: '1h' });
   
   if (existingUser) {
     // User exists, log them in
-    existingUser.token=token;
+   // existingUser.token=token;
+   console.log(existingUser);
     return res.status(200).send(existingUser);
   } else {
     // User does not exist, sign them up
     const newUser = { UUID, Email ,ProfileName,ProfileImageUrl};
     await usersCollection.create(newUser);
-    newUser.token=token;
+   // newUser.token=token;
     return res.status(200).send(newUser);
   }
 });
@@ -208,6 +210,7 @@ router.post('/dummyProfile',  async (req, res) => {
    // const { name, email, language, age, location, locationLat, locationLng, interestId, gender, educationLevel } = req.body;
      
     console.log('sdfsd '+email);
+    res.send('sdfsd '+email);
   //   if (!email) {
   //     return res.status(400).json({ message: 'All fields are required.' });
   //   }
@@ -311,6 +314,43 @@ router.get('/getInterestsList', async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
+});
+
+
+router.post('/CreateOrder', async (req, res) => {
+  const userMail=req.body.userMail;
+  const receiverMail=req.body.receiverMail;
+  const offerAmount=req.body.offerAmount;
+  const days=req.body.days;
+  const stat=req.body.days;
+  const price=req.body.price;
+  const date=req.body.date;
+ 
+  // Create a new order with the data from the request
+  const order = { userMail, receiverMail, offerAmount, days, stat, price, date };
+
+  try {
+    // Save the order to the database
+    await OrderCollection.create(order);
+
+    // Return the created order
+    res.json(order);
+  } catch (error) {
+    // Return an error if there was a problem saving the order
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/getAllOrders', async (req,res)=>{
+    const email=req.body.userEmail;
+    console.log(email);
+    let responce=await OrderCollection.find({receiverMail:email});
+      if(responce){
+        res.send(responce);
+      }
+      else{
+        res.send();
+      }
 });
 
 router.get('/Searchusers', async (req, res) => {
