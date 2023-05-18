@@ -331,10 +331,16 @@ router.post('/CreateOrder', async (req, res) => {
 
   try {
     // Save the order to the database
-    await OrderCollection.create(order);
+    let responce=await OrderCollection.create(order);
+    if(responce){
+      res.json(order);
+    }
 
+    else{
+      res.json();
+    }
     // Return the created order
-    res.json(order);
+    
   } catch (error) {
     // Return an error if there was a problem saving the order
     res.status(500).json({ error: error.message });
