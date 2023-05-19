@@ -331,14 +331,14 @@ router.post('/CreateOrder', async (req, res) => {
 
   try {
     // Save the order to the database
-    let responce=await OrderCollection.create(order);
-    if(responce){
-      res.json(order);
-    }
-
-    else{
-      res.json();
-    }
+    let responce=await OrderCollection.create(order).then((data)=>{
+      console.log(data);
+      res.json(data);
+    }).catch((c)=>{
+      res.json(c);
+    });
+    
+    
     // Return the created order
     
   } catch (error) {
