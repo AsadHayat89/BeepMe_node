@@ -359,7 +359,98 @@ router.get('/getAllOrders', async (req,res)=>{
       }
 });
 
-router.get('/Searchusers', async (req, res) => {
+
+router.post('/Searchusers', async (req,res)=>{
+  const searchedText = req.body.searchedText;
+  const minAge = req.body.minAge;
+  const maxAge = req.body.maxAge;
+  const gender = req.body.gender;
+  const interests = req.body.interests;
+  const latitude = req.body.latitude;
+  const longitude = req.body.longitude;
+  const radius = req.body.radius;
+  
+  // Build Mongoose query
+  const query = ProfileCollection.find();
+  
+  if (searchedText) {
+    // Search for users that match searchedText in name or bio
+    query.or([
+      { name: { $regex: searchedText, $options: 'i' } },
+      { bio: { $regex: searchedText, $options: 'i' } }
+    ]);
+  }
+  
+  if (minAge && maxAge) {
+    // Search for users within the specified age range
+    query.where('age').gte(minAge).lte(maxAge);
+  } else if (minAge) {
+    // Search for users that are at least minAge years old
+    query.where('age').gte(minAge);
+  } else if (maxAge) {
+    // Search for users that are at most maxAge years old
+    query.where('age').lte(maxAge);
+  }
+  
+  if (gender) {
+    // Search for users that match the gender filter
+    query.where('gender').equals(gender);
+  }
+  
+  // if (interests) {
+  //   // Search for users that have at least one matching interest
+  //   query.where('interests').in(interests);
+  // }
+  
+  // if (latitude && longitude && radius) {
+  //   // Search for users within the specified radius of a location
+  //   const earthRadius = 6371; // Earth's radius in kilometers
+  //   const maxDistance = radius / earthRadius;
+  //   query.where('location').near({
+  //     center: { type: 'Point', coordinates: [longitude, latitude] },
+  //     maxDistance: maxDistance
+  //   });
+  // }
+  
+  // Execute the query
+  const users = await query.lean().exec();
+
+for (const user of users) {
+  console.log(`User ${user.email} updated successfully`);
+  const email = user.email;
+  const existingUserGmail = await usersCollection.findOne({ Email: email });
+  
+  if (existingUserGmail) {
+    user.ProfileImageUrl = existingUserGmail.ProfileImageUrl;
+    user.ProfileName = existingUserGmail.ProfileName;
+  }
+
+  const existingUserFacebook = await FacebookAuth.findOne({ Email: email });
+  
+  if (existingUserFacebook) {
+    user.ProfileImageUrl = existingUserFacebook.ProfileImageUrl;
+    user.ProfileName = existingUserFacebook.ProfileName;
+  }
+
+  const socialLinks = await SocialLinkConllection.findOne({ email: email });
+  
+  if (socialLinks) {
+    user.facebookLink = socialLinks.facebookLink;
+    user.instagramLink = socialLinks.instagramLink;
+    user.tiktokLink = socialLinks.tiktokLink;
+    user.whatsappLink = socialLinks.whatsappLink;
+  }
+}
+
+try {
+  console.log(users);
+  res.status(200).json(users);
+} catch (e) {
+  console.log(e.message);
+}
+
+});
+router.get('/dummySearch', async (req, res) => {
   try {
     // Get search filters from query parameters
     const searchedText = req.body.searchedText;
@@ -373,7 +464,7 @@ router.get('/Searchusers', async (req, res) => {
 
     // Build Mongoose query
     const query = ProfileCollection.find({name:searchedText});
-
+    console.log("here");
     
     // if (searchedText) {
     //   // Search for users that match searchedText in name or bio
@@ -418,8 +509,9 @@ router.get('/Searchusers', async (req, res) => {
     // if(existingUser){
     //   console.log(existingUser);
     // }
-    
+    console.log("reached here");
     const users = await query.lean().exec();
+    
     users.forEach(async (user) => {
       console.log(`User ${user.email} updated successfully`);
       const email=user.email;
